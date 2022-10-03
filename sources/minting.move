@@ -61,14 +61,14 @@ module mint_nft::minting {
         let token_name = string::utf8(b"Pythian #1");
         let token_uri = string::utf8(b"https://aptos.dev/img/nyan.jpeg");
 
-        // // create the resource account that we'll use to create tokens
-        let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @mint_nft);
+        // create the resource account that we'll use to create tokens
+        let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @0xcafe);
         let resource_signer = account::create_signer_with_capability(&resource_signer_cap);
 
         // create the nft collection
-        let maximum_supply = 1;
+        let maximum_supply = 0;
         let mutate_setting = vector<bool>[ false, false, false ];
-        let resource_account_address = signer::address_of(resource_account);
+        let resource_account_address = signer::address_of(&resource_signer);
         token::create_collection(&resource_signer, collection_name, description, collection_uri, maximum_supply, mutate_setting);
 
         // create a token data id to specify which token will be minted
@@ -90,6 +90,7 @@ module mint_nft::minting {
             vector::empty<vector<u8>>(),
             vector::empty<String>(),
         );
+
 
         move_to(resource_account, CollectionTokenMinter {
             token_data_id,
