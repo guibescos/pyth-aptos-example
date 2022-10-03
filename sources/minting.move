@@ -62,7 +62,7 @@ module mint_nft::minting {
         let token_uri = string::utf8(b"https://aptos.dev/img/nyan.jpeg");
 
         // // create the resource account that we'll use to create tokens
-        let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @0xcafe);
+        let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @mint_nft);
         let resource_signer = account::create_signer_with_capability(&resource_signer_cap);
 
         // create the nft collection
