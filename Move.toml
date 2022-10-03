@@ -1,0 +1,14 @@
+[package]
+name = "Examples"
+version = "0.0.0"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "main" }
+AptosToken = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-token/", rev = "main" }
+
+[addresses]
+aptos_framework = "0x1"
+mint_nft = "_"
+
+[dev-addresses]
+mint_nft = "0xcedab8c158d82b4ecd50aae4bf2177285e7707009a0e08d77f528c21ffa93d41"
