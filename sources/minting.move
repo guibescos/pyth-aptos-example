@@ -24,6 +24,7 @@ module mint_nft::minting {
     use aptos_framework::account;
     use aptos_framework::event::EventHandle;
     use aptos_token::token::{Self, TokenDataId};
+    use aptos_framework::resource_account;
 
 
     // This struct stores the token receiver's address and token_data_id in the event of token minting
@@ -36,6 +37,7 @@ module mint_nft::minting {
     struct CollectionTokenMinter has key {
         token_data_id: TokenDataId,
         token_minting_events: EventHandle<TokenMintingEvent>,
+        signer_cap: account::SignerCapability
     }
 
     /// Action not authorized because the signer is not the owner of this module
@@ -60,18 +62,18 @@ module mint_nft::minting {
         let token_uri = string::utf8(b"https://aptos.dev/img/nyan.jpeg");
 
         // // create the resource account that we'll use to create tokens
-        // let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @0xcafe);
-        // let resource_signer = account::create_signer_with_capability(&resource_signer_cap);
+        let resource_signer_cap = resource_account::retrieve_resource_account_cap(resource_account, @0xcafe);
+        let resource_signer = account::create_signer_with_capability(&resource_signer_cap);
 
         // create the nft collection
         let maximum_supply = 1;
         let mutate_setting = vector<bool>[ false, false, false ];
         let resource_account_address = signer::address_of(resource_account);
-        token::create_collection(resource_account, collection_name, description, collection_uri, maximum_supply, mutate_setting);
+        token::create_collection(&resource_signer, collection_name, description, collection_uri, maximum_supply, mutate_setting);
 
         // create a token data id to specify which token will be minted
         let token_data_id = token::create_tokendata(
-            resource_account,
+            &resource_signer,
             collection_name,
             token_name,
             string::utf8(b""),
@@ -92,7 +94,15 @@ module mint_nft::minting {
         move_to(resource_account, CollectionTokenMinter {
             token_data_id,
             token_minting_events: account::new_event_handle<TokenMintingEvent>(resource_account),
+            signer_cap : resource_signer_cap
         });
     }
 
+    public entry fun mint_nft(receiver : &signer) acquires CollectionTokenMinter{
+        let collection_token_minter = borrow_global_mut<CollectionTokenMinter>(@mint_nft);
+
+        let resource_signer = account::create_signer_with_capability(&collection_token_minter.signer_cap);
+        let token_id = token::mint_token(&resource_signer, collection_token_minter.token_data_id, 1);
+        token::direct_transfer(&resource_signer, receiver, token_id, 1);
+    }
 }
