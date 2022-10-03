@@ -11,4 +11,4 @@ aptos_framework = "0x1"
 mint_nft = "_"
 
 [dev-addresses]
-mint_nft = "0xcedab8c158d82b4ecd50aae4bf2177285e7707009a0e08d77f528c21ffa93d41"
+mint_nft = "0xb138581594ebd7763cfa3c3e455050139b7304c6d41e7094a1c78da4e6761ed8"
