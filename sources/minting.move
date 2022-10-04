@@ -8,7 +8,13 @@ module mint_nft::minting {
     use aptos_token::token::{Self, TokenDataId};
     use aptos_framework::coin;
     use aptos_framework::aptos_coin;
+    use pyth::pyth;
+    use pyth::price_identifier;
+    use pyth::i64;
+    use pyth::price;
+    use aptos_std::math64::pow;
 
+    const APTOS_USD_PRICE_FEED_IDENTIFIER : vector<u8> = x"2a01deaec9e51a579277b34b122399984d0bbf57e2458a7e42fecd2829867a0d";
 
     // This struct stores the token receiver's address and token_data_id in the event of token minting
     struct TokenMintingEvent has drop, store {
@@ -77,7 +83,13 @@ module mint_nft::minting {
         let resource_signer = account::create_signer_with_capability(&collection_token_minter.signer_cap);
         let token_id = token::mint_token(&resource_signer, collection_token_minter.token_data_id, 1);
         token::direct_transfer(&resource_signer, receiver, token_id, 1);
-        coin::transfer<aptos_coin::AptosCoin>(receiver, @mint_nft, OCTAS_PER_APTOS);
 
+        let price = pyth::get_price(price_identifier::from_byte_vec(APTOS_USD_PRICE_FEED_IDENTIFIER));      
+        let price_positive = i64::get_magnitude_if_positive(&price::get_price(&price)); // This will fail if the price is negative
+        let expo_magnitude = i64::get_magnitude_if_negative(&price::get_expo(&price)); // This will fail if the exponent is positive
+
+        let price_in_aptos_coin = (OCTAS_PER_APTOS * pow(10, expo_magnitude)) / price_positive;
+
+        coin::transfer<aptos_coin::AptosCoin>(receiver, @mint_nft, price_in_aptos_coin);
     }
 }
