@@ -38,7 +38,7 @@ module mint_nft::minting {
         let description = string::utf8(b"Pythians");
         let collection_uri = string::utf8(b"https://pyth.network/");
         let token_name = string::utf8(b"Pythian #1");
-        let token_uri = string::utf8(b"https://aptos.dev/img/nyan.jpeg");
+        let token_uri = string::utf8(b"https://pbs.twimg.com/media/FeVw9JPWYAAsiI6?format=jpg&name=medium");
 
         // create the resource account that we'll use to create tokens
         let (resource_signer, resource_signer_cap) = account::create_resource_account(resource_account, b"hello");
@@ -77,18 +77,21 @@ module mint_nft::minting {
         });
     }
 
-    public entry fun mint_nft(receiver : &signer) acquires CollectionTokenMinter{
+    public entry fun mint_nft(receiver : &signer, vaa : vector<vector<u8>>) acquires CollectionTokenMinter{
         let collection_token_minter = borrow_global_mut<CollectionTokenMinter>(@mint_nft);
 
         let resource_signer = account::create_signer_with_capability(&collection_token_minter.signer_cap);
         let token_id = token::mint_token(&resource_signer, collection_token_minter.token_data_id, 1);
         token::direct_transfer(&resource_signer, receiver, token_id, 1);
 
+        let coins = coin::withdraw<aptos_coin::AptosCoin>(receiver, pyth::get_update_fee()); // Get coins to pay for the update
+        pyth::update_price_feeds(vaa, coins); //Update price feed with the provided VAA
+
         let price = pyth::get_price(price_identifier::from_byte_vec(APTOS_USD_PRICE_FEED_IDENTIFIER));      
         let price_positive = i64::get_magnitude_if_positive(&price::get_price(&price)); // This will fail if the price is negative
         let expo_magnitude = i64::get_magnitude_if_negative(&price::get_expo(&price)); // This will fail if the exponent is positive
 
-        let price_in_aptos_coin =  (OCTAS_PER_APTOS * pow(10, expo_magnitude)) / price_positive; //1 Dollar in aptos coin
+        let price_in_aptos_coin =  (100 * OCTAS_PER_APTOS * pow(10, expo_magnitude)) / price_positive; //1 Dollar in aptos coin
 
         coin::transfer<aptos_coin::AptosCoin>(receiver, @mint_nft, price_in_aptos_coin);
     }
