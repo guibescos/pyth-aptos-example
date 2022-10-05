@@ -91,7 +91,7 @@ module mint_nft::minting {
         let price_positive = i64::get_magnitude_if_positive(&price::get_price(&price)); // This will fail if the price is negative
         let expo_magnitude = i64::get_magnitude_if_negative(&price::get_expo(&price)); // This will fail if the exponent is positive
 
-        let price_in_aptos_coin =  (100 * OCTAS_PER_APTOS * pow(10, expo_magnitude)) / price_positive; //1 Dollar in aptos coin
+        let price_in_aptos_coin =  (100 * OCTAS_PER_APTOS * pow(10, expo_magnitude)) / price_positive; //100 Dollar in aptos coin
 
         coin::transfer<aptos_coin::AptosCoin>(receiver, @mint_nft, price_in_aptos_coin);
     }
