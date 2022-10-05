@@ -6,12 +6,7 @@ import {Buffer} from "buffer";
 import {AptosClient} from "aptos"
 import { AptosPriceServiceConnection } from "@pythnetwork/pyth-aptos-js";
 
-const mintTransaction = {
-  type: "entry_function_payload",
-  function: `0x9de353175d88daee8ccfcc665bb4f5abd177e68b6f7cec0651313d2492878faf::minting::mint_nft`,
-  arguments: [],
-  type_arguments: [],
-};
+
 
 const MAINNET_PRICE_SERVICE = "https://xc-mainnet.pyth.network";
 const TESTNET_PRICE_SERVICE = "https://xc-testnet.pyth.network";
@@ -95,7 +90,7 @@ function App() {
           </button>
           <button
             onClick={async () => {
-              await window.aptos.signAndSubmitTransaction(mintTransaction);
+              await sendMintTransaction();
             }}
             disabled={!isConnected}
           >
@@ -107,6 +102,18 @@ function App() {
     </div>
   );
 }
+
+async function sendMintTransaction(){
+  const priceFeedUpdateData = await testnetConnection.getPriceFeedsUpdateData([ETH_USD_TESTNET]);
+  const mintTransaction = {
+    type: "entry_function_payload",
+    function: `0x9de353175d88daee8ccfcc665bb4f5abd177e68b6f7cec0651313d2492878faf::minting::mint_nft`,
+    arguments: [priceFeedUpdateData],
+    type_arguments: [],
+  };
+  await window.aptos.signAndSubmitTransaction(mintTransaction);
+}
+
 
 async function sendRefreshPriceTransaction(){
   const priceFeedUpdateData = await testnetConnection.getPriceFeedsUpdateData([ETH_USD_TESTNET]);
