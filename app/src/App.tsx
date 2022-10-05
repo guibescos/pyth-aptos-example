@@ -2,22 +2,7 @@ import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { PriceServiceConnection, PriceFeed, HexString } from "@pythnetwork/pyth-common-js";
-import {Buffer} from "buffer";
-
-class AptosPriceServiceConnection extends PriceServiceConnection {
-  /**
-   * Gets price update data which then can be submitted to the Pyth contract to update the prices.
-   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
-   *
-   * @param priceIds Array of hex-encoded price ids.
-   * @returns Array of price update data, serialized such that it can be passed to the Pyth Aptos contract.
-   */
-  async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<number[][]> {
-    // Fetch the latest price feed update VAAs from the price service
-    const latestVaas : string[]= await this.getLatestVaas(priceIds);
-    return latestVaas.map((vaa) => {return Buffer.from(vaa, "base64").toJSON().data})
-  }
-}
+import {AptosPriceServiceConnection} from "@pythnetwork/pyth-aptos-js"
 
 const mintTransaction = {
   type: "entry_function_payload",
