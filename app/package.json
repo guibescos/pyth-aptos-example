@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@pythnetwork/pyth-aptos-js": "https://gitpkg.now.sh/pyth-network/pyth-js/pyth-aptos-js?main",
+    "@pythnetwork/pyth-aptos-js": "^0.2.0",
     "@pythnetwork/pyth-common-js": "^0.5.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

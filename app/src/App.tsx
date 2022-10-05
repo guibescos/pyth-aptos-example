@@ -4,21 +4,7 @@ import "./App.css";
 import { PriceServiceConnection, PriceFeed, HexString } from "@pythnetwork/pyth-common-js";
 import {Buffer} from "buffer";
 import {AptosClient} from "aptos"
-
-class AptosPriceServiceConnection extends PriceServiceConnection {
-  /**
-   * Gets price update data which then can be submitted to the Pyth contract to update the prices.
-   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
-   *
-   * @param priceIds Array of hex-encoded price ids.
-   * @returns Array of price update data, serialized such that it can be passed to the Pyth Aptos contract.
-   */
-  async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<number[][]> {
-    // Fetch the latest price feed update VAAs from the price service
-    const latestVaas : string[]= await this.getLatestVaas(priceIds);
-    return latestVaas.map((vaa) => {return Buffer.from(vaa, "base64").toJSON().data})
-  }
-}
+import { AptosPriceServiceConnection } from "@pythnetwork/pyth-aptos-js";
 
 const mintTransaction = {
   type: "entry_function_payload",
@@ -38,9 +24,6 @@ const PYTH_CONTRACT_TESTNET = "0xaa706d631cde8c634fe1876b0c93e4dec69d0c6ccac30a7
 const APTOS_TESTNET_RPC = "https://testnet.aptoslabs.com/";
 const PYTH_TABLE_HANDLE = "0x21b2122f77d3f9f944456c0ca8ffa6a13c541476433e64ab6ae81d48277a1181";
 const aptosClient = new AptosClient(APTOS_TESTNET_RPC);
-
-
-
 
 function App() {
   const [isConnected, setIsConnected] = React.useState<boolean>(false);
