@@ -12,11 +12,10 @@ class AptosPriceServiceConnection extends PriceServiceConnection {
    * @param priceIds Array of hex-encoded price ids.
    * @returns Array of price update data, serialized such that it can be passed to the Pyth Aptos contract.
    */
-  async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<number[]> {
+  async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<number[][]> {
     // Fetch the latest price feed update VAAs from the price service
     const latestVaas : string[]= await this.getLatestVaas(priceIds);
-    let buffer = Buffer.from(latestVaas[0], "base64");
-    return buffer.toJSON().data;
+    return latestVaas.map((vaa) => {return Buffer.from(vaa, "base64").toJSON().data})
   }
 }
 
@@ -61,7 +60,6 @@ function App() {
         <div>
           <button
             onClick={async () => {
-              console.log("REFRESH");
               await sendRefreshPriceTransaction();
             }}
             disabled={!isConnected}
@@ -107,11 +105,10 @@ function App() {
 
 async function sendRefreshPriceTransaction(){
   const priceFeedUpdateData = await testnetConnection.getPriceFeedsUpdateData([ETH_USD_TESTNET]);
-  console.log(priceFeedUpdateData);
   const priceRefreshInstruction = {
     type: "entry_function_payload",
     function: PYTH_CONTRACT_TESTNET+ `::pyth::update_price_feeds_with_funder`,
-    arguments: [[priceFeedUpdateData]],
+    arguments: [priceFeedUpdateData],
     type_arguments: [],
   };
   await window.aptos.signAndSubmitTransaction(priceRefreshInstruction);
