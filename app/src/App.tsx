@@ -8,7 +8,7 @@ import { AptosPriceServiceConnection } from "@pythnetwork/pyth-aptos-js";
 
 const mintTransaction = {
   type: "entry_function_payload",
-  function: `0xb138581594ebd7763cfa3c3e455050139b7304c6d41e7094a1c78da4e6761ed8::minting::mint_nft`,
+  function: `0x9de353175d88daee8ccfcc665bb4f5abd177e68b6f7cec0651313d2492878faf::minting::mint_nft`,
   arguments: [],
   type_arguments: [],
 };
