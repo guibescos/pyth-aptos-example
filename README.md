@@ -1,6 +1,7 @@
 ## 100$ USD Mint
 
 The goal of this contract is managing an NFT mint where the mint is paid in native currency but the cost of one NFT is always 100$.
+This example is intended to be run on Aptos testnet because it depends on Pyth and Wormhole existing onchain.
 
 ### How to deploy the smart contract :
 
