@@ -18,6 +18,7 @@ const ETH_USD_TESTNET = "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b
 const PYTH_CONTRACT_TESTNET = "0xaa706d631cde8c634fe1876b0c93e4dec69d0c6ccac30a734e9e257042e81541";
 const APTOS_TESTNET_RPC = "https://testnet.aptoslabs.com/";
 const PYTH_TABLE_HANDLE = "0x21b2122f77d3f9f944456c0ca8ffa6a13c541476433e64ab6ae81d48277a1181";
+const MINT_NFT_MODULE = "_"
 const aptosClient = new AptosClient(APTOS_TESTNET_RPC);
 
 function App() {
@@ -107,7 +108,7 @@ async function sendMintTransaction(){
   const priceFeedUpdateData = await testnetConnection.getPriceFeedsUpdateData([ETH_USD_TESTNET]);
   const mintTransaction = {
     type: "entry_function_payload",
-    function: `0x9de353175d88daee8ccfcc665bb4f5abd177e68b6f7cec0651313d2492878faf::minting::mint_nft`,
+    function: MINT_NFT_MODULE + `::minting::mint_nft`,
     arguments: [priceFeedUpdateData],
     type_arguments: [],
   };
