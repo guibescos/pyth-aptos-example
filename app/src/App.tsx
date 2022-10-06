@@ -1,28 +1,28 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { PriceServiceConnection, PriceFeed, HexString } from "@pythnetwork/pyth-common-js";
-import {Buffer} from "buffer";
+import { PriceServiceConnection, PriceFeed } from "@pythnetwork/pyth-common-js";
 import {AptosClient} from "aptos"
 import { AptosPriceServiceConnection } from "@pythnetwork/pyth-aptos-js";
 
-
-
 const MAINNET_PRICE_SERVICE = "https://xc-mainnet.pyth.network";
 const TESTNET_PRICE_SERVICE = "https://xc-testnet.pyth.network";
-const mainnetConnection = new PriceServiceConnection(MAINNET_PRICE_SERVICE);
-const testnetConnection = new AptosPriceServiceConnection(TESTNET_PRICE_SERVICE);
-const ETH_USD_MAINNET =
-  "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
+const APTOS_TESTNET_RPC = "https://testnet.aptoslabs.com/";
+
+const mainnetConnection = new PriceServiceConnection(MAINNET_PRICE_SERVICE); // Mainnet price service client to get visualize high frequency prices in the app
+const testnetConnection = new AptosPriceServiceConnection(TESTNET_PRICE_SERVICE); // Price service client used to retrieve the offchain VAAs used to update the onchain price
+const aptosClient = new AptosClient(APTOS_TESTNET_RPC); // Aptos client is used to retrieve onchain prices
+
+// Account addresses
+const ETH_USD_MAINNET ="0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
 const ETH_USD_TESTNET = "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6";
 const PYTH_CONTRACT_TESTNET = "0xaa706d631cde8c634fe1876b0c93e4dec69d0c6ccac30a734e9e257042e81541";
-const APTOS_TESTNET_RPC = "https://testnet.aptoslabs.com/";
 const PYTH_TABLE_HANDLE = "0x21b2122f77d3f9f944456c0ca8ffa6a13c541476433e64ab6ae81d48277a1181";
 const MINT_NFT_MODULE = "_"
-const aptosClient = new AptosClient(APTOS_TESTNET_RPC);
 
 function App() {
   const [isConnected, setIsConnected] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     window.aptos.disconnect();
   }, []);
@@ -36,14 +36,15 @@ function App() {
       "value_type": "0xaa706d631cde8c634fe1876b0c93e4dec69d0c6ccac30a734e9e257042e81541::price_info::PriceInfo",
       "key": { "bytes" : "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6"}
     });
-    console.log(data);
     setPythOnChainPrice(data.price_feed.price.price.magnitude * 10 **(- data.price_feed.price.expo.magnitude))
   }
 
+  // Fetch onchain price when you land on the website
   React.useEffect(() => {
     fetchOnChainPrice();
   }, []);
 
+  // Subscribe to offchain prices
   mainnetConnection.subscribePriceFeedUpdates([ETH_USD_MAINNET], (priceFeed: PriceFeed) => {
     setPythOffChainPrice(
       priceFeed.getCurrentPrice()?.getPriceAsNumberUnchecked() || 0
@@ -62,6 +63,8 @@ function App() {
           <button
             onClick={async () => {
               await sendRefreshPriceTransaction();
+              await new Promise(res => setTimeout(res, 5000));
+              await fetchOnChainPrice();
             }}
             disabled={!isConnected}
           >
@@ -92,6 +95,8 @@ function App() {
           <button
             onClick={async () => {
               await sendMintTransaction();
+              await new Promise(res => setTimeout(res, 5000));
+              await fetchOnChainPrice();
             }}
             disabled={!isConnected}
           >
